@@ -1,0 +1,2611 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookingAI - Akıllı Otel & Villa Rezervasyonu</title>
+    <script>
+        // Dosyaya çift tıklayarak file:// ile açıldığında otomatik localhost'a yönlendir
+        if (window.location.protocol === 'file:') {
+            window.location.href = 'http://localhost:8085';
+        }
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --accent-gold: #d97706;
+            --accent-gold-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --dark-bg: #0f172a;
+            --dark-card: #1e293b;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --bg-light: #f8fafc;
+            --border-color: #e2e8f0;
+            --card-radius: 18px;
+            --card-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+            --card-shadow-hover: 0 20px 35px -10px rgba(79, 70, 229, 0.15), 0 10px 15px -5px rgba(15, 23, 42, 0.05);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            letter-spacing: -0.01em;
+        }
+
+        h1, h2, h3, h4, h5, h6, .brand-font {
+            font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* 1. LUXURY NAVBAR */
+        .navbar-custom {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(16px);
+            padding: 16px 28px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .navbar-brand {
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #fff !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--primary-gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+        .brand-text-gold {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 2. HERO SEARCH BANNER */
+        .hero-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            padding: 48px 0 60px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 70%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .hero-title {
+            color: #fff;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .hero-subtitle {
+            color: #94a3b8;
+            font-size: 1.05rem;
+            margin-bottom: 28px;
+        }
+        .search-capsule {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 12px 16px;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        .search-field-divider {
+            border-right: 1px solid #e2e8f0;
+        }
+        @media (max-width: 768px) {
+            .search-field-divider {
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+                padding-bottom: 8px;
+                margin-bottom: 8px;
+            }
+        }
+        .btn-search-luxe {
+            background: var(--primary-gradient);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 12px 24px;
+            font-weight: 700;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+        .btn-search-luxe:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.5);
+            color: #fff;
+        }
+
+        /* 3. FILTER SIDEBAR */
+        .filter-card {
+            background: #fff;
+            border-radius: var(--card-radius);
+            border: 1px solid var(--border-color);
+            padding: 22px;
+            box-shadow: var(--card-shadow);
+        }
+        .filter-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .filter-section-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-top: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-check-input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* 4. HOTEL & ROOM CARDS */
+        .hotel-card {
+            background: #fff;
+            border-radius: var(--card-radius);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 22px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            box-shadow: var(--card-shadow);
+        }
+        .hotel-card:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-4px);
+            border-color: #cbd5e1;
+        }
+        .hotel-card-img-wrapper {
+            position: relative;
+            width: 100%;
+            height: 230px;
+            overflow: hidden;
+            background: #0f172a;
+        }
+        .hotel-card-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hotel-card:hover .hotel-card-img-wrapper img {
+            transform: scale(1.05);
+        }
+        .room-type-tag-floating {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            letter-spacing: 0.04em;
+        }
+        .btn-fav, .btn-wishlist {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 6px 14px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #334155;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 5;
+        }
+        .btn-fav:hover, .btn-wishlist:hover {
+            transform: scale(1.06);
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 6px 18px rgba(79, 70, 229, 0.25);
+        }
+        .btn-fav.active, .btn-wishlist.active {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border-color: #4f46e5;
+            box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+        }
+        .badge-wishlist {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(217, 119, 6, 0.1);
+        }
+        .hotel-info {
+            padding: 20px;
+        }
+        .badge-rating-luxe {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: #fff;
+            font-weight: 800;
+            font-size: 0.88rem;
+            padding: 6px 10px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        }
+        .feature-tag {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-right: 4px;
+            margin-bottom: 6px;
+            display: inline-block;
+            border: 1px solid #e2e8f0;
+        }
+        .price-night-pill {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .price-amount-luxe {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'Outfit', sans-serif;
+        }
+        .btn-reserve-luxe {
+            background: var(--primary-gradient);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 18px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+            transition: all 0.2s ease;
+        }
+        .btn-reserve-luxe:hover {
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+        }
+
+        /* 5. AI CHATBOT CONCIERGE */
+        .ai-chat-card {
+            background: #fff;
+            border-radius: var(--card-radius);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 640px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+        .ai-chat-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #fff;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .ai-avatar-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);
+        }
+        .chat-body {
+            flex: 1;
+            padding: 18px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: #f8fafc;
+        }
+        .chat-msg {
+            max-width: 88%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .msg-ai {
+            background-color: #ffffff;
+            color: var(--text-main);
+            align-self: flex-start;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 4px;
+        }
+        .msg-user {
+            background: var(--primary-gradient);
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+        .chat-footer {
+            padding: 14px;
+            background: #fff;
+            border-top: 1px solid #e2e8f0;
+        }
+        .chat-suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .suggestion-btn {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .suggestion-btn:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+        .in-chat-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+            display: flex;
+            gap: 12px;
+            padding: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+        .in-chat-card img {
+            width: 75px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .in-chat-card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .in-chat-card-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .in-chat-card-price {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* Itinerary Timeline Styles */
+        .itinerary-box {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 14px;
+            margin-top: 6px;
+            border: 1px solid #e0e7ff;
+            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.06);
+        }
+        .itinerary-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            color: #1e1b4b;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            border-bottom: 1px dashed #cbd5e1;
+            padding-bottom: 8px;
+        }
+        .itinerary-day {
+            background: #f8fafc;
+            border-left: 3.5px solid var(--primary);
+            border-radius: 8px;
+            padding: 9px 12px;
+            margin-bottom: 10px;
+            font-size: 0.82rem;
+        }
+        .itinerary-day-title {
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.84rem;
+        }
+        .itinerary-slot {
+            margin-bottom: 4px;
+            color: #334155;
+            line-height: 1.45;
+        }
+        .itinerary-tip {
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 0.8rem;
+            color: #92400e;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+        .itinerary-hotel-cta {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 0.82rem;
+            color: #166534;
+            margin-top: 10px;
+        }
+
+        /* Voice Mic Pulse */
+        .btn-mic {
+            transition: all 0.2s ease;
+        }
+        .btn-mic.recording {
+            background-color: #ef4444 !important;
+            color: #fff !important;
+            border-color: #ef4444 !important;
+            animation: pulse-red 1.2s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Floating Compare Bar */
+        .compare-bar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(16px);
+            color: #fff;
+            padding: 12px 26px;
+            border-radius: 35px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            gap: 16px;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slide-up 0.3s ease;
+        }
+        /* Segmented View Mode Tabs */
+        .view-mode-tabs {
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 30px;
+            display: flex;
+            gap: 4px;
+        }
+        .view-tab-btn {
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 8px 16px;
+            border-radius: 25px;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .view-tab-btn:hover {
+            color: var(--primary);
+        }
+        .view-tab-btn.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .wishlist-active-banner {
+            background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+            border: 1px solid #c7d2fe !important;
+            border-radius: 16px;
+        }
+        .wishlist-banner-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--primary-gradient);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+        }
+        /* SMS Live Toast & Notification Banner */
+        #sms-toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1080;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+            max-width: 400px;
+            width: calc(100% - 48px);
+        }
+        .sms-toast {
+            pointer-events: auto;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-left: 5px solid #22c55e;
+            border-radius: 16px;
+            padding: 16px 18px;
+            color: #fff;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+            animation: toast-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s ease;
+        }
+        .sms-toast.hide {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        .sms-toast-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .sms-toast-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4ade80;
+        }
+        .sms-toast-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+        .sms-toast-body {
+            font-size: 0.88rem;
+            line-height: 1.45;
+            color: #f1f5f9;
+        }
+        @keyframes toast-in {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Order / Price Alert Card */
+        .price-alert-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 16px;
+            background: #fff;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+        .price-alert-card:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+            border-color: #cbd5e1;
+        }
+        .price-alert-active {
+            border-left: 4px solid #f59e0b;
+        }
+        .price-alert-triggered {
+            border-left: 4px solid #22c55e;
+            background: #f0fdf4;
+        }
+
+        @keyframes slide-up {
+            from { transform: translate(-50%, 40px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- FLOATING SMS TOAST CONTAINER -->
+<div id="sms-toast-container"></div>
+
+<nav class="navbar navbar-custom">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <span class="navbar-brand">
+            <span class="brand-logo-icon"><i class="fa-solid fa-hotel"></i></span>
+            BookingAI
+        </span>
+        <div class="d-flex align-items-center gap-2">
+            <!-- Bildirimler Butonu -->
+            <button class="btn btn-outline-light btn-sm fw-bold rounded-pill px-3 position-relative" onclick="openNotificationsModal()">
+                <i class="fa-solid fa-bell me-1 text-warning"></i> Bildirimler
+                <span id="unread-notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none; font-size: 0.65rem;">0</span>
+            </button>
+            
+            <!-- Sadece Yöneticilere Özel Panel Butonu (Normal Kullanıcılara Görünmez) -->
+            <button id="btn-admin-panel-nav" class="btn btn-outline-info btn-sm fw-bold rounded-pill px-3" style="display: none;" onclick="openAdminPanelModal()">
+                <i class="fa-solid fa-hotel me-1"></i> <span id="nav-manager-title">Otel Yönetim Paneli</span>
+            </button>
+
+            <!-- Rezervasyonlarım Butonu -->
+            <button id="btn-reservations-nav" class="btn btn-warning btn-sm fw-bold text-dark rounded-pill px-3" onclick="openReservationsModal()">
+                <i class="fa-solid fa-calendar-check me-1"></i> Rezervasyonlarım
+            </button>
+
+            <!-- Ortak Kullanıcı / Yönetici Giriş Bölümü -->
+            <div id="auth-nav-section" class="d-flex align-items-center gap-2">
+                <button id="btn-auth-login" class="btn btn-outline-light btn-sm fw-bold rounded-pill px-3" onclick="openLoginModal()">
+                    Giriş Yap
+                </button>
+                <div id="user-logged-in-badge" style="display: none;" class="d-flex align-items-center gap-2">
+                    <span id="nav-user-display-name" class="badge bg-light text-dark px-3 py-2 fw-bold rounded-pill border">
+                        <i class="fa-solid fa-circle-user text-primary me-1"></i> Kullanıcı
+                    </span>
+                    <button class="btn btn-outline-danger btn-sm rounded-circle d-flex align-items-center justify-content-center" onclick="logoutUser()" title="Çıkış Yap" style="width: 30px; height: 30px;">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- MÜŞTERİ PORTALI (Filtreler, Oda Kartları ve Yapay Zeka Asistanı) -->
+<div id="customer-portal-view">
+    <div class="hero-banner">
+        <div class="container text-center">
+            <h1 class="hero-title">Konaklama Seçeneklerini Keşfedin</h1>
+            <p class="hero-subtitle">Otel, villa, bungalov ve yapay zeka destekli rezervasyon asistanı</p>
+
+            <div class="search-capsule text-start mx-auto" style="max-width: 960px;">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4 search-field-divider">
+                        <label class="small text-muted fw-bold d-block mb-1 ps-2"><i class="fa-solid fa-location-dot text-danger me-1"></i> Şehir / Bölge</label>
+                        <input type="text" id="top-city-input" class="form-control border-0 fw-semibold" placeholder="Antalya, Muğla, Sakarya...">
+                    </div>
+                    <div class="col-md-3 search-field-divider">
+                        <label class="small text-muted fw-bold d-block mb-1 ps-2"><i class="fa-regular fa-calendar text-primary me-1"></i> Giriş Tarihi</label>
+                        <input type="date" id="top-checkin" class="form-control border-0 fw-semibold" value="2026-09-10" onchange="fetchRoomsFromApi()">
+                    </div>
+                    <div class="col-md-3 search-field-divider">
+                        <label class="small text-muted fw-bold d-block mb-1 ps-2"><i class="fa-regular fa-calendar text-primary me-1"></i> Çıkış Tarihi</label>
+                        <input type="date" id="top-checkout" class="form-control border-0 fw-semibold" value="2026-09-12" onchange="fetchRoomsFromApi()">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-search-luxe w-100" onclick="fetchRoomsFromApi()">
+                            <i class="fa-solid fa-magnifying-glass me-1"></i> Otel Bul
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-4">
+        <div class="row g-4">
+
+            <!-- 1. SOL FİLTRELER -->
+            <div class="col-lg-3">
+                <div class="filter-card">
+                    <div class="filter-title">
+                        <span><i class="fa-solid fa-sliders me-2 text-primary"></i> Filtreler</span>
+                        <a href="javascript:void(0)" class="text-danger text-decoration-none small fw-bold" onclick="resetFilters()">Temizle</a>
+                    </div>
+
+                    <div class="filter-section-title">
+                        <i class="fa-solid fa-sparkles text-warning"></i> Olanaklar & Özellikler
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input filter-checkbox" type="checkbox" value="wifi" id="feat-wifi" onchange="applyAllFilters()">
+                        <label class="form-check-label fw-medium" for="feat-wifi">Wi-Fi</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input filter-checkbox" type="checkbox" value="havuz" id="feat-pool" onchange="applyAllFilters()">
+                        <label class="form-check-label fw-medium" for="feat-pool">Yüzme Havuzu</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input filter-checkbox" type="checkbox" value="bahçe" id="feat-garden" onchange="applyAllFilters()">
+                        <label class="form-check-label fw-medium" for="feat-garden">Müstakil / Geniş Bahçe</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input filter-checkbox" type="checkbox" value="jakuzi" id="feat-jacuzzi" onchange="applyAllFilters()">
+                        <label class="form-check-label fw-medium" for="feat-jacuzzi">Jakuzi</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input filter-checkbox" type="checkbox" value="şömine" id="feat-fireplace" onchange="applyAllFilters()">
+                        <label class="form-check-label fw-medium" for="feat-fireplace">Şömine</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input filter-checkbox" type="checkbox" value="bar" id="feat-bar" onchange="applyAllFilters()">
+                        <label class="form-check-label fw-medium" for="feat-bar">Bar / Lounge</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input filter-checkbox" type="checkbox" value="spa" id="feat-spa" onchange="applyAllFilters()">
+                        <label class="form-check-label fw-medium" for="feat-spa">Spa & Masaj</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input filter-checkbox" type="checkbox" value="deniz" id="feat-sea" onchange="applyAllFilters()">
+                        <label class="form-check-label fw-medium" for="feat-sea">Denize Sıfır / Manzaralı</label>
+                    </div>
+
+                    <div class="filter-section-title">
+                        <i class="fa-solid fa-building text-primary"></i> Konaklama Türü
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input type-checkbox" type="checkbox" value="VILLA" id="type-villa" onchange="applyAllFilters()">
+                        <label class="form-check-label fw-medium" for="type-villa">Müstakil Villa</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input type-checkbox" type="checkbox" value="BUNGALOW" id="type-bungalow" onchange="applyAllFilters()">
+                        <label class="form-check-label fw-medium" for="type-bungalow">Bungalov & Dağ Evi</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input type-checkbox" type="checkbox" value="STONE_HOUSE" id="type-stone" onchange="applyAllFilters()">
+                        <label class="form-check-label fw-medium" for="type-stone">Taş Ev</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input type-checkbox" type="checkbox" value="SUITE" id="type-suite" onchange="applyAllFilters()">
+                        <label class="form-check-label fw-medium" for="type-suite">Süit Oda</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. ORTA: ODA LİSTELEME -->
+            <div class="col-lg-5">
+                <!-- Görünüm Seçimi Segmented Tab -->
+                <div class="view-mode-tabs mb-3 shadow-sm">
+                    <button type="button" class="view-tab-btn flex-grow-1 active" id="tab-all-hotels" onclick="switchViewMode('all')">
+                        <i class="fa-solid fa-bed me-1"></i> Tüm Odalar
+                    </button>
+                    <button type="button" class="view-tab-btn flex-grow-1" id="tab-wishlist-hotels" onclick="switchViewMode('wishlist')">
+                        <i class="fa-solid fa-bookmark me-1 text-warning"></i> Listemdeki Odalar (<span id="tab-fav-count">0</span>)
+                    </button>
+                </div>
+
+                <!-- Listem Aktif Bilgilendirme ve Geri Dönüş Bannerı -->
+                <div id="wishlist-active-banner" class="wishlist-active-banner p-3 mb-3 d-none shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="wishlist-banner-icon">
+                                <i class="fa-solid fa-bookmark"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-primary">Kayıtlı Odalarınız</h6>
+                                <small class="text-muted">Listenize eklediğiniz odalar görüntüleniyor</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-primary rounded-pill px-3 fw-bold d-flex align-items-center gap-2" onclick="switchViewMode('all')">
+                            <i class="fa-solid fa-arrow-left"></i> Tüm Odalara Dön
+                        </button>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold text-muted" id="results-count">Yükleniyor...</h6>
+                    <div class="d-flex align-items-center gap-2">
+                        <select id="sort-select" class="form-select form-select-sm rounded-pill px-3" style="width: auto; font-size: 0.85rem; font-weight: 600;" onchange="handleSortChange()">
+                            <option value="price_asc">Fiyat: Artan</option>
+                            <option value="price_desc">Fiyat: Azalan</option>
+                            <option value="capacity_desc">Kapasite: En Geniş</option>
+                            <option value="rating_desc">Puan: En Yüksek</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="resetFilters()">Tümü</button>
+                    </div>
+                </div>
+
+                <div id="active-badges" class="mb-3"></div>
+                <div id="rooms-container"></div>
+            </div>
+
+            <!-- 3. SAĞ: AI ASİSTAN -->
+            <div class="col-lg-4">
+                <div class="ai-chat-card">
+                    <div class="ai-chat-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0 fw-bold">BookingAI Asistan</h6>
+                            <small id="chat-status" class="text-success fw-semibold"><i class="fa-solid fa-circle fa-2xs"></i> Çevrimiçi</small>
+                        </div>
+                        <button class="btn btn-outline-light btn-sm rounded-pill px-2 py-1" onclick="resetChat()" title="Sohbeti Sıfırla & Tüm Otelleri Listele" style="font-size: 0.75rem;">
+                            <i class="fa-solid fa-rotate-left me-1"></i> Sıfırla
+                        </button>
+                    </div>
+                    <div class="chat-body" id="chat-box">
+                        <div class="chat-msg msg-ai">
+                            Merhaba! Tarih, kişi sayısı, oda arama veya <strong>kişiselleştirilmiş gün gün tatil planı</strong> (örneğin: <em>"Eşimle 3 gün Sapanca romantik plan hazırla"</em>) isteyebilirsiniz.
+                            <div class="chat-suggestion-chips">
+                                <button class="suggestion-btn" onclick="sendQuickMessage('3 Günlük Sapanca Planı')">🗓️ 3 Günlük Sapanca Planı</button>
+                                <button class="suggestion-btn" onclick="sendQuickMessage('Kaş Tatil Rotası')">🌴 Kaş Tatil Rotası</button>
+                                <button class="suggestion-btn" onclick="sendQuickMessage('Kapadokya Gezi Planı')">🎈 Kapadokya Gezi Planı</button>
+                                <button class="suggestion-btn" onclick="sendQuickMessage('Antalya Otelleri')">Antalya Otelleri</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-footer">
+                        <div class="input-group">
+                            <input type="text" id="chat-input" class="form-control rounded-start-pill border-end-0 ps-3" placeholder="Asistana yazın veya sesli söyleyin..." onkeypress="handleKeyPress(event)">
+                            <button class="btn btn-outline-secondary btn-mic border-start-0 border-end-0" id="mic-btn" onclick="toggleVoiceRecognition()" title="Sesle Arama / Komut">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                            <button class="btn btn-primary rounded-end-pill px-3" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FLOATING KARŞILAŞTIRMA ÇUBUĞU -->
+    <div class="compare-bar" id="compare-bar">
+        <span><i class="fa-solid fa-code-compare me-1"></i> <strong id="compare-count">0</strong> oda seçildi</span>
+        <button class="btn btn-warning btn-sm fw-bold text-dark" onclick="openCompareModal()">
+            <i class="fa-solid fa-scale-balanced me-1"></i> Karşılaştır
+        </button>
+        <button class="btn btn-outline-light btn-sm" onclick="clearCompareSelection()">Temizle</button>
+    </div>
+</div>
+
+<!-- DEDICATED YÖNETİCİ PANELİ EKRANI (Filtresiz, Yapay Zekasız, Doğrudan Yönetim Dashboard) -->
+<div id="manager-portal-view" style="display: none;" class="container my-4">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-header bg-dark text-white p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-1" id="main-admin-panel-title">
+                    <i class="fa-solid fa-hotel text-info me-2"></i> Otel Oda & Fiyat Yönetim Paneli
+                </h4>
+                <p class="text-secondary small mb-0" id="main-admin-panel-subtitle">
+                    Yalnızca sorumlu olduğunuz otelin odalarını ve anlık rezervasyonlarını yönetiyorsunuz.
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span id="main-admin-badge-name" class="badge bg-info text-dark px-3 py-2 fw-bold rounded-pill">Müdür</span>
+                <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="logoutUser()">
+                    <i class="fa-solid fa-right-from-bracket me-1"></i> Çıkış Yap
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel Sekmeleri -->
+        <div class="bg-light px-4 pt-3 border-bottom">
+            <ul class="nav nav-pills gap-2" id="mainAdminPanelTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold rounded-pill px-4" id="tab-main-admin-prices-btn" data-bs-toggle="pill" data-bs-target="#tab-main-admin-prices" type="button" role="tab">
+                        <i class="fa-solid fa-tags me-1 text-warning"></i> Oda & Fiyat Yönetimi
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold rounded-pill px-4 position-relative" id="tab-main-admin-reservations-btn" data-bs-toggle="pill" data-bs-target="#tab-main-admin-reservations" type="button" role="tab" onclick="loadAdminReservationsList()">
+                        <i class="fa-solid fa-calendar-check me-1 text-success"></i> Canlı Otel Rezervasyonları
+                        <span id="main-admin-res-count-badge" class="badge bg-danger rounded-pill ms-1" style="font-size: 0.75rem;">0</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="tab-content" id="mainAdminPanelTabContent">
+                <!-- SEKME 1: ODA VE FİYAT YÖNETİMİ -->
+                <div class="tab-pane fade show active" id="tab-main-admin-prices" role="tabpanel">
+                    <div class="alert alert-info border d-flex align-items-center justify-content-between p-3 mb-4 rounded-3">
+                        <div>
+                            <i class="fa-solid fa-circle-info text-primary me-2 fa-lg"></i>
+                            <strong>Otel Yönetim Modu:</strong> Oda fiyatını müşterinin belirlediği hedef tutarın altına veya eşit seviyeye çektiğinizde, sistem müşteri rezervasyonunu otomatik oluşturur ve bildirim gönderir.
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Otel & Şehir</th>
+                                    <th>Oda No & Tür</th>
+                                    <th>Mevcut Fiyat</th>
+                                    <th style="width: 240px;">Yeni Fiyat Belirle (₺)</th>
+                                    <th class="text-end">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-rooms-tbody">
+                                <tr><td colspan="5" class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-primary"></i> Yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SEKME 2: CANLI OTEL REZERVASYONLARI -->
+                <div class="tab-pane fade" id="tab-main-admin-reservations" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Otele Gelen Anlık Rezervasyonlar</h6>
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="loadAdminReservationsList()">
+                            <i class="fa-solid fa-arrows-rotate me-1"></i> Yenile
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Rezervasyon No</th>
+                                    <th>Misafir Bilgisi</th>
+                                    <th>Oda Detayı</th>
+                                    <th>Tarihler</th>
+                                    <th>Toplam Tutar</th>
+                                    <th>Durum</th>
+                                    <th class="text-end">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-reservations-tbody">
+                                <tr><td colspan="7" class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-primary"></i> Rezervasyonlar yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- KARŞILAŞTIRMA MODAL -->
+<div class="modal fade" id="compareModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-scale-balanced me-1"></i> Konaklama Karşılaştırması</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="compare-modal-content" class="table-responsive"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- REZERVASYONLAR MODAL -->
+<div class="modal fade" id="reservationsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title fw-bold text-dark"><i class="fa-solid fa-calendar-days me-1"></i> Aktif Rezervasyonlarım</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="reservations-list">Yükleniyor...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SMS & SİSTEM BİLDİRİMLERİ MODAL -->
+<div class="modal fade" id="notificationsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="modal-title fw-bold brand-font mb-0"><i class="fa-solid fa-bell text-warning me-2"></i> Bildirim Merkezi</h5>
+                <div class="d-flex align-items-center gap-1">
+                    <button class="btn btn-outline-light btn-sm" onclick="markAllNotificationsAsRead()" style="font-size: 0.76rem;" title="Tümünü Okundu Say">
+                        <i class="fa-solid fa-check-double me-1"></i> Okundu
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm text-white" onclick="clearAllNotifications()" style="font-size: 0.76rem;" title="Tüm Bildirimleri Temizle">
+                        <i class="fa-solid fa-trash-can me-1"></i> Temizle
+                    </button>
+                    <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal"></button>
+                </div>
+            </div>
+            <div class="modal-body p-3" style="max-height: 520px; overflow-y: auto;">
+                <div id="notifications-list">Yükleniyor...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- KULLANICI & YÖNETİCİ ORTAK GİRİŞ MODALI -->
+<div class="modal fade" id="loginModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-dark text-white p-4">
+                <div>
+                    <h5 class="modal-title fw-bold brand-font mb-0"><i class="fa-solid fa-user-lock text-warning me-2"></i> Hesabınıza Giriş Yapın</h5>
+                    <small class="text-secondary">Kullanıcı veya otel yöneticisi hesabınızla giriş yapabilirsiniz.</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <form onsubmit="event.preventDefault(); handleUnifiedLogin();">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Kullanıcı Adı veya E-posta</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-user text-secondary"></i></span>
+                            <input type="text" id="login-username" class="form-control" placeholder="Kullanıcı adı veya e-posta" required autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Şifre</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-lock text-secondary"></i></span>
+                            <input type="password" id="login-password" class="form-control" placeholder="Şifreniz" required autocomplete="current-password">
+                        </div>
+                    </div>
+                    <div id="login-error-msg" class="alert alert-danger py-2 small rounded-3" style="display:none;"></div>
+                    <button type="submit" class="btn btn-warning w-100 fw-bold py-2 rounded-pill text-dark shadow-sm">
+                        Giriş Yap
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- OTEL & ODA DETAYI MODAL (Her Otelin Kendi Odaları ve Müsaitlikleri) -->
+<div class="modal fade" id="hotelDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold brand-font" id="hotel-modal-title"><i class="fa-solid fa-hotel me-2"></i> Otel & Oda Detayları</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" id="hotel-modal-body">
+                <div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin fa-2x text-primary"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let allLoadedRooms = [];
+    let basePoolRooms = [];
+    let chatHistory = [];
+    let userWishlistRoomIds = new Set(JSON.parse(localStorage.getItem('booking_room_wishlist') || '[]'));
+    let roomWishlistCounts = {};
+    let compareSelectedRooms = [];
+    let isShowingFavoritesOnly = false;
+    let recognition = null;
+    let isRecording = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initSpeechRecognition();
+        fetchUserWishlist();
+        fetchRoomsFromApi();
+    });
+
+    // 0. WISHLIST / LİSTE VERİLERİNİ ÇEKME (ODA BAZLI)
+    async function fetchUserWishlist() {
+        try {
+            const res = await fetch('/api/wishlist/user/1');
+            if (res.ok) {
+                const ids = await res.json();
+                userWishlistRoomIds = new Set(ids);
+                localStorage.setItem('booking_room_wishlist', JSON.stringify(ids));
+                updateFavCountBadge();
+            }
+        } catch (e) {
+            console.log('Wishlist yüklenemedi:', e);
+        }
+    }
+
+    // 1. VERİTABANI VE TARİH MÜSAİTLİK SORGUSU
+    async function fetchRoomsFromApi() {
+        const city = document.getElementById('top-city-input').value.trim();
+        const inDate = document.getElementById('top-checkin').value;
+        const outDate = document.getElementById('top-checkout').value;
+        const sortBy = document.getElementById('sort-select').value;
+
+        let url = `/api/rooms?sortBy=${sortBy}`;
+        if (city) url += `&city=${encodeURIComponent(city)}`;
+        if (inDate) url += `&checkInDate=${inDate}`;
+        if (outDate) url += `&checkOutDate=${outDate}`;
+
+        try {
+            const res = await fetch(url);
+            allLoadedRooms = await res.json();
+            
+            // Oda listesi sayaçlarını hafızaya al
+            allLoadedRooms.forEach(r => {
+                if (r.id) {
+                    if (roomWishlistCounts[r.id] === undefined) {
+                        roomWishlistCounts[r.id] = r.wishlistCount || 0;
+                    }
+                }
+            });
+
+            basePoolRooms = allLoadedRooms;
+            applyAllFilters();
+        } catch (e) {
+            document.getElementById('results-count').textContent = 'Hata';
+            document.getElementById('rooms-container').innerHTML = '<div class="alert alert-danger">Odalar yüklenirken hata oluştu.</div>';
+        }
+    }
+
+    function normalizeStr(str) {
+        if (!str) return '';
+        return str.toLowerCase()
+            .replace(/İ/g, 'i')
+            .replace(/I/g, 'i')
+            .replace(/ı/g, 'i')
+            .replace(/ğ/g, 'g')
+            .replace(/ü/g, 'u')
+            .replace(/ş/g, 's')
+            .replace(/ö/g, 'o')
+            .replace(/ç/g, 'c')
+            .replace(/wi-fi/g, 'wifi');
+    }
+
+    function applyAllFilters() {
+        const selectedTypes = Array.from(document.querySelectorAll('.type-checkbox:checked')).map(cb => cb.value.toUpperCase());
+        const selectedFeatures = Array.from(document.querySelectorAll('.filter-checkbox:checked')).map(cb => normalizeStr(cb.value));
+
+        renderBadges(selectedTypes, selectedFeatures);
+
+        let filtered = basePoolRooms.filter(room => {
+            if (isShowingFavoritesOnly && !userWishlistRoomIds.has(room.id)) {
+                return false;
+            }
+
+            if (selectedTypes.length > 0) {
+                const rType = (room.roomType || '').toUpperCase();
+                if (!selectedTypes.includes(rType)) {
+                    return false;
+                }
+            }
+
+            if (selectedFeatures.length > 0) {
+                const roomFeat = normalizeStr(room.features);
+                const hotelFeat = room.hotel ? normalizeStr(room.hotel.features) : '';
+                const hotelName = room.hotel ? normalizeStr(room.hotel.name) : '';
+                const hotelDesc = room.hotel ? normalizeStr(room.hotel.description) : '';
+
+                const fullText = `${roomFeat} ${hotelFeat} ${hotelName} ${hotelDesc}`;
+
+                for (const feat of selectedFeatures) {
+                    if (!fullText.includes(feat)) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        });
+
+        // Client-side Sort
+        const sortType = document.getElementById('sort-select').value;
+        if (sortType === 'price_asc') {
+            filtered.sort((a, b) => (a.pricePerNight || 0) - (b.pricePerNight || 0));
+        } else if (sortType === 'price_desc') {
+            filtered.sort((a, b) => (b.pricePerNight || 0) - (a.pricePerNight || 0));
+        } else if (sortType === 'capacity_desc') {
+            filtered.sort((a, b) => (b.capacity || 0) - (a.capacity || 0));
+        } else if (sortType === 'rating_desc') {
+            filtered.sort((a, b) => ((b.hotel && b.hotel.rating) || 0) - ((a.hotel && a.hotel.rating) || 0));
+        }
+
+        renderRooms(filtered);
+    }
+
+    function handleSortChange() {
+        applyAllFilters();
+    }
+
+    function renderBadges(types, features) {
+        const container = document.getElementById('active-badges');
+        container.innerHTML = '';
+        [...types, ...features].forEach(item => {
+            const badge = document.createElement('span');
+            badge.className = 'filter-chip';
+            const label = item.toLowerCase() === 'wifi' ? 'WI-FI' : item.toUpperCase();
+            badge.innerHTML = label;
+            container.appendChild(badge);
+        });
+    }
+
+    function resetFilters() {
+        document.querySelectorAll('.type-checkbox, .filter-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('active-badges').innerHTML = '';
+        document.getElementById('top-city-input').value = '';
+        document.getElementById('sort-select').value = 'price_asc';
+        switchViewMode('all');
+    }
+
+    // 2. ODA LİSTESİ / WISHLIST YÖNETİMİ & CANLI ODA SAYAÇLARI
+    async function toggleWishlist(roomId, event, fromModal = false) {
+        if (event) event.stopPropagation();
+
+        try {
+            const res = await fetch(`/api/wishlist/toggle?userId=1&roomId=${roomId}`, { method: 'POST' });
+            if (!res.ok) throw new Error('İşlem başarısız');
+
+            const data = await res.json();
+            const inWishlist = data.inWishlist;
+            const newCount = data.wishlistCount;
+
+            roomWishlistCounts[roomId] = newCount;
+
+            if (inWishlist) {
+                userWishlistRoomIds.add(roomId);
+            } else {
+                userWishlistRoomIds.delete(roomId);
+            }
+
+            localStorage.setItem('booking_room_wishlist', JSON.stringify(Array.from(userWishlistRoomIds)));
+            updateFavCountBadge();
+
+            // Ekrandaki tüm kartların ve sayaçların güncellenmesi
+            document.querySelectorAll(`.wishlist-count-span-${roomId}`).forEach(el => {
+                el.textContent = newCount;
+            });
+
+            document.querySelectorAll(`.btn-wishlist-${roomId}`).forEach(btn => {
+                if (inWishlist) {
+                    btn.classList.add('active');
+                    btn.innerHTML = `<i class="fa-solid fa-bookmark"></i> <span class="d-none d-sm-inline ms-1">Listemde</span>`;
+                    btn.title = 'Listemden Çıkar';
+                } else {
+                    btn.classList.remove('active');
+                    btn.innerHTML = `<i class="fa-regular fa-bookmark"></i> <span class="d-none d-sm-inline ms-1">Listeme Ekle</span>`;
+                    btn.title = 'Listeme Ekle';
+                }
+            });
+
+            // Modal içindeki butonların güncellenmesi
+            document.querySelectorAll(`.btn-wishlist-modal-${roomId}`).forEach(modalBtn => {
+                if (inWishlist) {
+                    modalBtn.className = `btn btn-primary btn-sm rounded-pill px-3 fw-bold btn-wishlist-modal-${roomId}`;
+                    modalBtn.innerHTML = `<i class="fa-solid fa-bookmark me-1"></i> <span id="modal-wishlist-text-${roomId}">Listemde</span>`;
+                } else {
+                    modalBtn.className = `btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold btn-wishlist-modal-${roomId}`;
+                    modalBtn.innerHTML = `<i class="fa-regular fa-bookmark me-1"></i> <span id="modal-wishlist-text-${roomId}">Listeme Ekle</span>`;
+                }
+            });
+
+            if (isShowingFavoritesOnly) {
+                applyAllFilters();
+            }
+
+        } catch (e) {
+            console.error('Wishlist güncellenirken hata:', e);
+            alert('Listeye ekleme sırasında bir hata oluştu.');
+        }
+    }
+
+    function updateFavCountBadge() {
+        const count = userWishlistRoomIds.size;
+        const tabBadge = document.getElementById('tab-fav-count');
+        if (tabBadge) tabBadge.textContent = count;
+    }
+
+    function switchViewMode(mode) {
+        isShowingFavoritesOnly = (mode === 'wishlist');
+        
+        const tabAll = document.getElementById('tab-all-hotels');
+        const tabWish = document.getElementById('tab-wishlist-hotels');
+        const banner = document.getElementById('wishlist-active-banner');
+
+        if (isShowingFavoritesOnly) {
+            if (tabAll) tabAll.classList.remove('active');
+            if (tabWish) tabWish.classList.add('active');
+            if (banner) banner.classList.remove('d-none');
+        } else {
+            if (tabAll) tabAll.classList.add('active');
+            if (tabWish) tabWish.classList.remove('active');
+            if (banner) banner.classList.add('d-none');
+        }
+
+        applyAllFilters();
+    }
+
+    function toggleFavoritesView() {
+        switchViewMode(isShowingFavoritesOnly ? 'all' : 'wishlist');
+    }
+
+    // 3. KARŞILAŞTIRMA MODU
+    function toggleCompare(roomId) {
+        if (compareSelectedRooms.includes(roomId)) {
+            compareSelectedRooms = compareSelectedRooms.filter(id => id !== roomId);
+        } else {
+            if (compareSelectedRooms.length >= 2) {
+                alert('En fazla 2 odayı karşılaştırabilirsiniz. Lütfen önce birini kaldırın.');
+                return;
+            }
+            compareSelectedRooms.push(roomId);
+        }
+        updateCompareBar();
+    }
+
+    function updateCompareBar() {
+        const bar = document.getElementById('compare-bar');
+        const countSpan = document.getElementById('compare-count');
+        countSpan.textContent = compareSelectedRooms.length;
+
+        if (compareSelectedRooms.length > 0) {
+            bar.style.display = 'flex';
+        } else {
+            bar.style.display = 'none';
+        }
+        document.querySelectorAll('.compare-chk').forEach(chk => {
+            const rId = parseInt(chk.dataset.id);
+            chk.checked = compareSelectedRooms.includes(rId);
+        });
+    }
+
+    function clearCompareSelection() {
+        compareSelectedRooms = [];
+        updateCompareBar();
+    }
+
+    function openCompareModal() {
+        if (compareSelectedRooms.length < 2) {
+            alert('Lütfen karşılaştırmak için 2 oda seçin.');
+            return;
+        }
+
+        const room1 = allLoadedRooms.find(r => r.id === compareSelectedRooms[0]);
+        const room2 = allLoadedRooms.find(r => r.id === compareSelectedRooms[1]);
+
+        if (!room1 || !room2) return;
+
+        const checkFeat = (room, feat) => {
+            const text = `${room.features || ''} ${room.hotel?.features || ''} ${room.hotel?.description || ''}`.toLowerCase();
+            return text.includes(feat.toLowerCase()) ? '<span class="text-success fw-bold">Var</span>' : '<span class="text-muted">Yok</span>';
+        };
+
+        const modalHtml = `
+            <table class="table table-bordered table-striped mb-0 text-center align-middle">
+                <thead>
+                    <tr class="table-light">
+                        <th style="width: 25%;">Özellik</th>
+                        <th style="width: 37.5%;">${room1.hotel?.name || 'Otel 1'} (${room1.roomNumber})</th>
+                        <th style="width: 37.5%;">${room2.hotel?.name || 'Otel 2'} (${room2.roomNumber})</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Görsel</strong></td>
+                        <td><img src="${room1.imageUrl}" class="img-fluid rounded" style="max-height: 120px;"></td>
+                        <td><img src="${room2.imageUrl}" class="img-fluid rounded" style="max-height: 120px;"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Şehir</strong></td>
+                        <td>${room1.hotel?.city || ''}</td>
+                        <td>${room2.hotel?.city || ''}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Konaklama Türü</strong></td>
+                        <td><span class="badge bg-secondary">${room1.roomType}</span></td>
+                        <td><span class="badge bg-secondary">${room2.roomType}</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Misafir Puanı</strong></td>
+                        <td><span class="badge bg-primary">${(room1.hotel && room1.hotel.rating) ? room1.hotel.rating.toFixed(1) : '9.0'}</span></td>
+                        <td><span class="badge bg-primary">${(room2.hotel && room2.hotel.rating) ? room2.hotel.rating.toFixed(1) : '9.0'}</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Kapasite</strong></td>
+                        <td>${room1.capacity} Kişilik</td>
+                        <td>${room2.capacity} Kişilik</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gecelik Fiyat</strong></td>
+                        <td><h5 class="text-primary fw-bold mb-0">${room1.pricePerNight} ₺</h5></td>
+                        <td><h5 class="text-primary fw-bold mb-0">${room2.pricePerNight} ₺</h5></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wi-Fi</strong></td>
+                        <td>${checkFeat(room1, 'wifi')}</td>
+                        <td>${checkFeat(room2, 'wifi')}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Yüzme Havuzu</strong></td>
+                        <td>${checkFeat(room1, 'havuz')}</td>
+                        <td>${checkFeat(room2, 'havuz')}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Jakuzi</strong></td>
+                        <td>${checkFeat(room1, 'jakuzi')}</td>
+                        <td>${checkFeat(room2, 'jakuzi')}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Şömine</strong></td>
+                        <td>${checkFeat(room1, 'şömine')}</td>
+                        <td>${checkFeat(room2, 'şömine')}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>İşlem</strong></td>
+                        <td><button class="btn btn-primary btn-sm fw-bold" onclick="bookRoom(${room1.id}); bootstrap.Modal.getInstance(document.getElementById('compareModal')).hide();">Rezerve Et</button></td>
+                        <td><button class="btn btn-primary btn-sm fw-bold" onclick="bookRoom(${room2.id}); bootstrap.Modal.getInstance(document.getElementById('compareModal')).hide();">Rezerve Et</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
+
+        document.getElementById('compare-modal-content').innerHTML = modalHtml;
+        new bootstrap.Modal(document.getElementById('compareModal')).show();
+    }
+
+    function getSelectedStayNights() {
+        const inVal = document.getElementById('top-checkin') ? document.getElementById('top-checkin').value : '2026-09-10';
+        const outVal = document.getElementById('top-checkout') ? document.getElementById('top-checkout').value : '2026-09-12';
+        const d1 = new Date(inVal);
+        const d2 = new Date(outVal);
+        const diff = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+        return diff > 0 ? diff : 1;
+    }
+
+    // 4. ODA KARTLARI ÇİZİMİ
+    function renderRooms(rooms) {
+        const container = document.getElementById('rooms-container');
+        const countLabel = document.getElementById('results-count');
+
+        if (!rooms || rooms.length === 0) {
+            countLabel.textContent = `0 konaklama seçeneği bulundu`;
+            if (isShowingFavoritesOnly) {
+                container.innerHTML = `
+                    <div class="card border-0 rounded-4 shadow-sm p-4 text-center bg-white my-3">
+                        <div class="mb-3 text-warning"><i class="fa-regular fa-bookmark fa-3x"></i></div>
+                        <h5 class="fw-bold brand-font mb-1">Listenizde Henüz Oda Bulunmuyor</h5>
+                        <p class="text-muted small mb-3">Beğendiğiniz odaların üzerindeki "Listeme Ekle" butonuna basarak listenizi oluşturabilirsiniz.</p>
+                        <button class="btn btn-primary rounded-pill px-4 fw-bold mx-auto" onclick="switchViewMode('all')">
+                            <i class="fa-solid fa-arrow-left me-1"></i> Tüm Odaları Keşfet
+                        </button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '<div class="alert alert-warning"><i class="fa-solid fa-circle-info me-2"></i> Seçilen kriterlere uygun oda bulunamadı.</div>';
+            }
+            return;
+        }
+
+        countLabel.textContent = `${rooms.length} konaklama seçeneği bulundu`;
+        container.innerHTML = '';
+
+        const nights = getSelectedStayNights();
+
+        rooms.forEach(r => {
+            const hotelId = r.hotel ? r.hotel.id : 1;
+            const hotelName = r.hotel ? r.hotel.name : 'Otel';
+            const city = r.hotel ? r.hotel.city : '';
+            const address = r.hotel ? r.hotel.address : '';
+            const img = r.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
+
+            const roomFeatures = r.features ? r.features.split(',') : [];
+            const hotelFeatures = (r.hotel && r.hotel.features) ? r.hotel.features.split(',') : [];
+            const combinedTags = [...new Set([...roomFeatures, ...hotelFeatures])].filter(f => f.trim().length > 0);
+
+            const featuresList = combinedTags.map(f => `<span class="feature-tag">${f.trim()}</span>`).join(' ');
+            
+            const isInWishlist = userWishlistRoomIds.has(r.id);
+            const wCount = (roomWishlistCounts[r.id] !== undefined) ? roomWishlistCounts[r.id] : (r.wishlistCount || 0);
+            
+            const isCompared = compareSelectedRooms.includes(r.id);
+            const rating = (r.hotel && r.hotel.rating) ? r.hotel.rating.toFixed(1) : '9.0';
+            const totalStayPrice = (r.pricePerNight * nights).toLocaleString('tr-TR');
+            const nightlyPriceStr = Number(r.pricePerNight).toLocaleString('tr-TR');
+
+            const card = `
+                <div class="hotel-card">
+                    <div class="hotel-card-img-wrapper">
+                        <img src="${img}" alt="${hotelName}">
+                        <div class="room-type-tag-floating">${r.roomType}</div>
+                        <button class="btn-wishlist btn-wishlist-${r.id} ${isInWishlist ? 'active' : ''}" onclick="toggleWishlist(${r.id}, event)" title="${isInWishlist ? 'Listemden Çıkar' : 'Listeme Ekle'}">
+                            <i class="${isInWishlist ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'}"></i>
+                            <span class="d-none d-sm-inline ms-1">${isInWishlist ? 'Listemde' : 'Listeme Ekle'}</span>
+                        </button>
+                    </div>
+                    <div class="hotel-info">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h5 class="fw-bold mb-1 brand-font" style="cursor: pointer;" onclick="openHotelDetailModal(${hotelId})" title="Oteli ve Tüm Odalarını İncele">
+                                    ${hotelName} <i class="fa-solid fa-arrow-up-right-from-square fa-2xs text-muted ms-1"></i>
+                                </h5>
+                                <small class="text-muted d-block mb-1"><i class="fa-solid fa-location-dot text-danger me-1"></i> ${city} - ${address}</small>
+                                <span class="badge-wishlist">
+                                    <i class="fa-solid fa-bookmark text-warning"></i>
+                                    <strong class="wishlist-count-span-${r.id}">${wCount}</strong> kişinin listesinde
+                                </span>
+                            </div>
+                            <span class="badge-rating-luxe"><i class="fa-solid fa-star text-warning me-1"></i> ${rating}</span>
+                        </div>
+                        <div class="mb-2 d-flex flex-wrap align-items-center gap-1 mt-2">
+                            <span class="badge bg-light text-dark border me-1">Oda: ${r.roomNumber}</span>
+                            <span class="badge bg-light text-primary border me-1"><i class="fa-solid fa-user-group me-1"></i> ${r.capacity} Kişilik</span>
+                            ${r.isAvailable !== false ?
+                                `<span class="badge bg-success-subtle text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i> Müsait</span>` :
+                                `<span class="badge bg-danger-subtle text-danger border border-danger"><i class="fa-solid fa-circle-xmark me-1"></i> Dolu (Rezerve)</span>`
+                            }
+                        </div>
+                        <div class="mb-3">${featuresList}</div>
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <div>
+                                <span class="price-night-pill d-block">Gecelik: ${nightlyPriceStr} ₺</span>
+                                <span class="price-amount-luxe">${totalStayPrice} ₺ <small class="fs-7 text-muted fw-normal">(${nights} Gece)</small></span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary btn-sm rounded-pill px-2" onclick="openHotelDetailModal(${hotelId})" title="Bu otelin tüm odalarını ve müsaitliklerini gör">
+                                    <i class="fa-solid fa-door-open me-1"></i> Odaları Gör
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm rounded-pill px-2" onclick="toggleCompare(${r.id})">
+                                    <input type="checkbox" class="compare-chk form-check-input me-1" data-id="${r.id}" ${isCompared ? 'checked' : ''} style="pointer-events: none;">
+                                    Kıyasla
+                                </button>
+                                ${r.isAvailable !== false ?
+                                    `<button class="btn btn-reserve-luxe" onclick="bookRoom(${r.id})">
+                                        <i class="fa-solid fa-calendar-plus me-1"></i> Rezerve Et
+                                    </button>` :
+                                    `<button class="btn btn-secondary btn-sm rounded-pill px-3" disabled title="Bu oda seçilen tarihlerde doludur">
+                                        <i class="fa-solid fa-ban me-1"></i> Dolu
+                                    </button>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += card;
+        });
+    }
+
+    // 5. SES TANIMA (SPEECH-TO-TEXT)
+    function initSpeechRecognition() {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) {
+            console.log('SpeechRecognition tarayıcı tarafından desteklenmiyor.');
+            return;
+        }
+
+        recognition = new SpeechRec();
+        recognition.lang = 'tr-TR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+            isRecording = true;
+            const micBtn = document.getElementById('mic-btn');
+            micBtn.classList.add('recording');
+            document.getElementById('chat-input').placeholder = 'Dinleniyor... Konuşun...';
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            const chatInput = document.getElementById('chat-input');
+            chatInput.value = transcript;
+            setTimeout(() => {
+                sendMessage();
+            }, 300);
+        };
+
+        recognition.onerror = () => {
+            stopVoiceRecognition();
+        };
+
+        recognition.onend = () => {
+            stopVoiceRecognition();
+        };
+    }
+
+    function toggleVoiceRecognition() {
+        if (!recognition) {
+            alert('Tarayıcınız ses tanıma özelliğini desteklemiyor (Chrome, Edge veya Safari önerilir).');
+            return;
+        }
+        if (isRecording) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    }
+
+    function stopVoiceRecognition() {
+        isRecording = false;
+        const micBtn = document.getElementById('mic-btn');
+        if (micBtn) micBtn.classList.remove('recording');
+        document.getElementById('chat-input').placeholder = 'Asistana yazın veya sesli söyleyin...';
+    }
+
+    // 6. CHATBOT VE REZERVASYON
+    function setChatStatus(status) {
+        const statusEl = document.getElementById('chat-status');
+        if (!statusEl) return;
+        if (status === 'online') {
+            statusEl.className = 'text-success fw-semibold';
+            statusEl.innerHTML = '<i class="fa-solid fa-circle fa-2xs"></i> Çevrimiçi';
+        } else if (status === 'typing') {
+            statusEl.className = 'text-primary fw-semibold';
+            statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin fa-2xs"></i> Yanıtlıyor...';
+        } else if (status === 'offline') {
+            statusEl.className = 'text-danger fw-semibold';
+            statusEl.innerHTML = '<i class="fa-solid fa-circle fa-2xs"></i> Çevrimdışı';
+        }
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+        if (!message) return;
+
+        appendMessage(message, 'user');
+        input.value = '';
+
+        setChatStatus('typing');
+
+        const chatBox = document.getElementById('chat-box');
+        const loadingDiv = document.createElement('div');
+        loadingDiv.id = 'ai-loading-indicator';
+        loadingDiv.className = 'chat-msg msg-ai';
+        loadingDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> <em>Asistan yanıtlıyor...</em>';
+        chatBox.appendChild(loadingDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    message: message, 
+                    history: chatHistory,
+                    userId: (currentAppUser && currentAppUser.id) ? currentAppUser.id : null
+                })
+            });
+
+            const loadingIndicator = document.getElementById('ai-loading-indicator');
+            if (loadingIndicator) loadingIndicator.remove();
+
+            if (!res.ok) {
+                setChatStatus('offline');
+                appendMessage('Asistan yanıt veremedi. Lütfen tekrar deneyin.', 'ai');
+                return;
+            }
+
+            setChatStatus('online');
+
+            const data = await res.json();
+            const textReply = data.reply || data.message || 'Kriterlerinize uygun konaklama seçenekleri listelendi:';
+            const suggestions = data.suggestions || [];
+            const rooms = data.rooms || [];
+
+            chatHistory.push({ role: 'user', content: message });
+            chatHistory.push({ role: 'assistant', content: textReply });
+
+            appendMessage(textReply, 'ai', suggestions, rooms);
+
+            if (rooms && Array.isArray(rooms) && rooms.length > 0) {
+                basePoolRooms = rooms;
+                renderRooms(basePoolRooms);
+            }
+        } catch (e) {
+            setChatStatus('offline');
+            const loadingIndicator = document.getElementById('ai-loading-indicator');
+            if (loadingIndicator) loadingIndicator.remove();
+            appendMessage('Asistanla bağlantı kurulurken bir hata oluştu.', 'ai');
+        }
+    }
+
+    function appendMessage(text, sender, suggestions = [], rooms = []) {
+        const chatBox = document.getElementById('chat-box');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chat-msg ${sender === 'user' ? 'msg-user' : 'msg-ai'}`;
+
+        let html = `<div>${text}</div>`;
+
+        // Chat içinde mini oda kartı
+        if (sender === 'ai' && rooms && rooms.length > 0) {
+            const topRoom = rooms[0];
+            const hName = topRoom.hotel ? topRoom.hotel.name : 'Otel';
+            const img = topRoom.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
+            const rating = topRoom.hotel && topRoom.hotel.rating ? topRoom.hotel.rating.toFixed(1) : '9.0';
+            const wCount = (roomWishlistCounts[topRoom.id] !== undefined) ? roomWishlistCounts[topRoom.id] : (topRoom.wishlistCount || 0);
+            
+            html += `
+                <div class="in-chat-card">
+                    <img src="${img}" alt="${hName}">
+                    <div class="in-chat-card-body">
+                        <div>
+                            <div class="in-chat-card-title brand-font">${hName} (${topRoom.roomNumber})</div>
+                            <small class="text-muted">${topRoom.roomType} • <span class="text-success fw-bold"><i class="fa-solid fa-star text-warning"></i> ${rating}</span> • <span class="text-warning fw-bold"><i class="fa-solid fa-bookmark"></i> ${wCount}</span></small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="in-chat-card-price">${topRoom.pricePerNight} ₺ / gece</span>
+                            <button class="btn btn-reserve-luxe py-1 px-3 fw-bold" style="font-size: 0.76rem;" onclick="bookRoom(${topRoom.id})">Hemen Ayırt</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Öneri Çipleri (Suggestion Chips)
+        if (sender === 'ai' && suggestions && suggestions.length > 0) {
+            html += `<div class="chat-suggestion-chips">`;
+            suggestions.forEach(s => {
+                html += `<button class="suggestion-btn" onclick="sendQuickMessage('${s}')">${s}</button>`;
+            });
+            html += `</div>`;
+        }
+
+        msgDiv.innerHTML = html;
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendQuickMessage(text) {
+        document.getElementById('chat-input').value = text;
+        sendMessage();
+    }
+
+    function resetChat() {
+        chatHistory = [];
+        const chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML = `
+            <div class="chat-msg msg-ai">
+                Sohbet sıfırlandı. Tarih, kişi sayısı veya özel tatil planı isteklerinizi yazabilir ya da sesli söyleyebilirsiniz.
+                <div class="chat-suggestion-chips">
+                    <button class="suggestion-btn" onclick="sendQuickMessage('3 Günlük Sapanca Planı')">🗓️ 3 Günlük Sapanca Planı</button>
+                    <button class="suggestion-btn" onclick="sendQuickMessage('Kaş Tatil Rotası')">🌴 Kaş Tatil Rotası</button>
+                    <button class="suggestion-btn" onclick="sendQuickMessage('Kapadokya Gezi Planı')">🎈 Kapadokya Gezi Planı</button>
+                    <button class="suggestion-btn" onclick="sendQuickMessage('Antalya Otelleri')">Antalya Otelleri</button>
+                </div>
+            </div>
+        `;
+        fetchRoomsFromApi();
+    }
+
+    // 7. OTEL VE TÜM ODALARINI İNCELEME MODALI (HER ODA İÇİN AYRI FAVORİLEME VE SAYAÇ)
+    async function openHotelDetailModal(hotelId) {
+        const inDate = document.getElementById('top-checkin').value || '2026-09-10';
+        const outDate = document.getElementById('top-checkout').value || '2026-09-12';
+        const modalBody = document.getElementById('hotel-modal-body');
+        modalBody.innerHTML = '<div class="text-center py-5"><i class="fa-solid fa-spinner fa-spin fa-2x text-primary"></i><p class="mt-2 text-muted">Otel ve odaları yükleniyor...</p></div>';
+
+        const modalEl = document.getElementById('hotelDetailModal');
+        const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modalInstance.show();
+
+        try {
+            const res = await fetch(`/api/rooms/hotel/${hotelId}?checkInDate=${inDate}&checkOutDate=${outDate}`);
+            if (!res.ok) {
+                modalBody.innerHTML = '<div class="alert alert-danger">Otel bilgileri alınamadı.</div>';
+                return;
+            }
+            const rooms = await res.json();
+            if (!rooms || rooms.length === 0) {
+                modalBody.innerHTML = '<div class="alert alert-warning">Bu otele ait kayıtlı oda bulunamadı.</div>';
+                return;
+            }
+
+            const hotel = rooms[0].hotel || {};
+            document.getElementById('hotel-modal-title').innerHTML = `<i class="fa-solid fa-hotel me-2"></i> ${hotel.name || 'Otel Detayı'}`;
+
+            const hotelFeatures = hotel.features ? hotel.features.split(',').map(f => `<span class="badge bg-light text-dark border me-1 mb-1">${f.trim()}</span>`).join(' ') : '';
+
+            let roomsHtml = '';
+            const nights = getSelectedStayNights();
+
+            rooms.forEach(r => {
+                const isAvail = (r.isAvailable !== false);
+                const rFeatures = r.features ? r.features.split(',').map(f => `<span class="badge bg-light text-secondary border me-1">${f.trim()}</span>`).join(' ') : '';
+                const isRoomInWishlist = userWishlistRoomIds.has(r.id);
+                const rWishCount = (roomWishlistCounts[r.id] !== undefined) ? roomWishlistCounts[r.id] : (r.wishlistCount || 0);
+                const totalStayPrice = (r.pricePerNight * nights).toLocaleString('tr-TR');
+                const nightlyPriceStr = Number(r.pricePerNight).toLocaleString('tr-TR');
+
+                roomsHtml += `
+                    <div class="card mb-3 border rounded-3 overflow-hidden shadow-sm">
+                        <div class="row g-0 align-items-center">
+                            <div class="col-md-3 position-relative">
+                                <img src="${r.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80'}" class="img-fluid rounded-start h-100 object-fit-cover" style="min-height: 140px;" alt="Oda">
+                            </div>
+                            <div class="col-md-6 p-3">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <h6 class="fw-bold mb-0">Oda ${r.roomNumber} (${r.roomType})</h6>
+                                    ${isAvail ?
+                                        `<span class="badge bg-success-subtle text-success border border-success"><i class="fa-solid fa-circle-check me-1"></i> Müsait</span>` :
+                                        `<span class="badge bg-danger-subtle text-danger border border-danger"><i class="fa-solid fa-circle-xmark me-1"></i> Dolu</span>`
+                                    }
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <small class="text-muted"><i class="fa-solid fa-user-group me-1"></i> ${r.capacity} Kişilik Kapasite</small>
+                                    <span class="badge-wishlist py-1 px-2" style="font-size: 0.72rem;">
+                                        <i class="fa-solid fa-bookmark text-warning me-1"></i>
+                                        <strong class="wishlist-count-span-${r.id}">${rWishCount}</strong> kişinin listesinde
+                                    </span>
+                                </div>
+                                <div>${rFeatures}</div>
+                            </div>
+                            <div class="col-md-3 p-3 text-md-end text-start border-start bg-light">
+                                <span class="text-muted small d-block">Gecelik: ${nightlyPriceStr} ₺</span>
+                                <h5 class="fw-bold text-primary mb-0">${totalStayPrice} ₺</h5>
+                                <small class="text-muted d-block mb-2">(${nights} Gece Toplam)</small>
+                                <div class="d-flex flex-column gap-1">
+                                    <button class="btn ${isRoomInWishlist ? 'btn-primary' : 'btn-outline-primary'} btn-sm rounded-pill w-100 fw-bold btn-wishlist-modal-${r.id}" onclick="toggleWishlist(${r.id}, event, true)">
+                                        <i class="${isRoomInWishlist ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'} me-1"></i>
+                                        <span id="modal-wishlist-text-${r.id}">${isRoomInWishlist ? 'Listemde' : 'Listeme Ekle'}</span>
+                                    </button>
+                                    ${isAvail ?
+                                        `<button class="btn btn-reserve-luxe btn-sm w-100 mt-1" onclick="bookRoom(${r.id}); bootstrap.Modal.getInstance(document.getElementById('hotelDetailModal')).hide();">
+                                            <i class="fa-solid fa-calendar-plus me-1"></i> Rezerve Et
+                                        </button>` :
+                                        `<button class="btn btn-secondary btn-sm w-100 mt-1" disabled>
+                                            <i class="fa-solid fa-ban me-1"></i> Dolu
+                                        </button>`
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            modalBody.innerHTML = `
+                <div class="mb-4 pb-3 border-bottom">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h4 class="fw-bold brand-font mb-1">${hotel.name}</h4>
+                            <p class="text-muted mb-2"><i class="fa-solid fa-location-dot text-danger me-1"></i> ${hotel.city} - ${hotel.address || ''}</p>
+                        </div>
+                        <span class="badge-rating-luxe fs-6"><i class="fa-solid fa-star text-warning me-1"></i> ${hotel.rating ? hotel.rating.toFixed(1) : '9.0'}</span>
+                    </div>
+                    <p class="small text-secondary mt-2 mb-2">${hotel.description || ''}</p>
+                    <div>${hotelFeatures}</div>
+                </div>
+                <h6 class="fw-bold mb-3"><i class="fa-solid fa-bed me-2 text-primary"></i> Bu Oteldeki Tüm Odalar ve Durumları (${rooms.length} Oda)</h6>
+                ${roomsHtml}
+            `;
+        } catch (e) {
+            modalBody.innerHTML = '<div class="alert alert-danger">Otel detayları yüklenirken bir hata oluştu.</div>';
+        }
+    }
+
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
+
+    async function bookRoom(roomId) {
+        if (!currentAppUser || !currentAppUser.id) {
+            appendMessage('<strong>Giriş Yapmanız Gerekiyor</strong><br>Otel rezervasyonu yapabilmek için lütfen hesabınıza giriş yapın.', 'ai', ['Giriş Yap', 'Antalya Otelleri', 'Sapanca Bungalov']);
+            openLoginModal();
+            return;
+        }
+
+        const inDate = document.getElementById('top-checkin').value || '2026-09-10';
+        const outDate = document.getElementById('top-checkout').value || '2026-09-12';
+
+        try {
+            const res = await fetch('/api/reservations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: currentAppUser.id,
+                    roomId: roomId,
+                    checkInDate: inDate,
+                    checkOutDate: outDate
+                })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                const nights = Math.max(1, Math.round((new Date(data.checkOutDate) - new Date(data.checkInDate)) / (1000 * 60 * 60 * 24)));
+                appendMessage(`<strong>Rezervasyonunuz Başarıyla Oluşturuldu!</strong><br>Rezervasyon No: #${data.id}<br>Otel: ${data.hotelName || ''} (Oda ${data.roomNumber || ''})<br>Tarihler: ${data.checkInDate} &rarr; ${data.checkOutDate} <strong>(${nights} Gece)</strong><br>Toplam Tutar: <strong>${Number(data.totalPrice).toLocaleString('tr-TR')} ₺</strong>`, 'ai', ['Rezervasyonlarım']);
+                fetchRoomsFromApi();
+            } else {
+                let errText = 'Bu oda seçilen tarihlerde zaten rezerve edilmiştir.';
+                try {
+                    const errJson = await res.json();
+                    if (errJson.message) errText = errJson.message;
+                } catch (_) {}
+                appendMessage(`<strong>Rezervasyon Yapılamadı:</strong><br>${errText}`, 'ai');
+            }
+        } catch (e) {
+            appendMessage('Rezervasyon sırasında bir bağlantı hatası oluştu.', 'ai');
+        }
+    }
+
+    async function openReservationsModal() {
+        const modalEl = document.getElementById('reservationsModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+        loadReservationsList();
+    }
+
+    async function loadReservationsList() {
+        const container = document.getElementById('reservations-list');
+        if (!currentAppUser) {
+            container.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fa-solid fa-lock fa-3x text-warning mb-3 d-block"></i>
+                    <h6 class="fw-bold">Giriş Yapmanız Gerekiyor</h6>
+                    <p class="text-muted small mb-3">Rezervasyonlarınızı görüntülemek ve yönetmek için lütfen hesabınıza giriş yapın.</p>
+                    <button class="btn btn-primary btn-sm rounded-pill px-4" onclick="openLoginModal()">Giriş Yap</button>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = '<div class="text-center py-3"><i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor...</div>';
+
+        try {
+            const res = await fetch(`/api/reservations/user/${currentAppUser.id}`);
+            const list = await res.json();
+
+            if (list.length === 0) {
+                container.innerHTML = '<div class="alert alert-info mb-0">Henüz aktif bir rezervasyonunuz bulunmuyor.</div>';
+                return;
+            }
+
+            container.innerHTML = list.map(item => `
+                <div class="card mb-2 border-0 shadow-sm rounded-3">
+                    <div class="card-body d-flex justify-content-between align-items-center p-3">
+                        <div>
+                            <span class="badge bg-primary">Rezervasyon #${item.id}</span>
+                            <h6 class="fw-bold mt-1 mb-0">${item.hotelName || 'Otel'} - Oda ${item.roomNumber || item.roomId} (${item.roomType || ''})</h6>
+                            <small class="text-muted"><i class="fa-regular fa-calendar text-primary me-1"></i> ${item.checkInDate} &rarr; ${item.checkOutDate}</small>
+                            <div class="text-success fw-bold mt-1">${item.totalPrice} ₺</div>
+                        </div>
+                        <button class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold" onclick="cancelReservationById(${item.id})">
+                            <i class="fa-solid fa-trash-can me-1"></i> İptal Et
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) {
+            container.innerHTML = '<div class="alert alert-danger">Rezervasyonlar alınamadı.</div>';
+        }
+    }
+
+    async function cancelReservationById(id) {
+        if (!confirm(`#${id} numaralı rezervasyonu iptal etmek istediğinize emin misiniz?`)) return;
+        try {
+            const res = await fetch(`/api/reservations/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                alert(`Rezervasyon #${id} başarıyla iptal edildi.`);
+                loadReservationsList();
+                fetchRoomsFromApi();
+                appendMessage(`<strong>Rezervasyon İptal Edildi:</strong><br>#${id} numaralı rezervasyonunuz başarıyla iptal edildi ve oda müsait duruma getirildi.`, 'ai');
+                if (currentAppUser && (currentAppUser.role === 'HOTEL_MANAGER' || currentAppUser.role === 'ADMIN')) {
+                    loadAdminReservationsList();
+                }
+            } else {
+                alert('Rezervasyon iptal edilirken hata oluştu.');
+            }
+        } catch (e) {
+            alert('Bağlantı hatası.');
+        }
+    }
+
+    // 7. SMS BİLDİRİM VE OTOMATİK REZERVASYON SİSTEMİ
+    let lastKnownNotifCount = 0;
+    let isInitialNotifCheck = true;
+
+    async function checkUnreadNotifications() {
+        if (!currentAppUser) {
+            const badge = document.getElementById('unread-notif-badge');
+            if (badge) badge.style.display = 'none';
+            return;
+        }
+
+        const activeUserId = currentAppUser.id;
+        try {
+            const res = await fetch(`/api/notifications/user/${activeUserId}/unread-count`);
+            if (res.ok) {
+                const data = await res.json();
+                const unread = data.unreadCount || 0;
+                const badge = document.getElementById('unread-notif-badge');
+                if (badge) {
+                    if (unread > 0) {
+                        badge.style.display = 'inline-block';
+                        badge.textContent = unread;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+
+                // Sayfa ilk yüklendiğinde DEĞİL, yalnızca kullanıcı girişliyken yeni bir bildirim düştüğünde Canlı Toast göster
+                if (!isInitialNotifCheck && unread > lastKnownNotifCount) {
+                    fetchLatestSmsAndToast(activeUserId);
+                }
+                lastKnownNotifCount = unread;
+                isInitialNotifCheck = false;
+            }
+        } catch (e) {
+            console.error('Bildirim kontrolü hatası:', e);
+        }
+    }
+
+    async function fetchLatestSmsAndToast(userId) {
+        if (!currentAppUser) return;
+        const activeUserId = userId || currentAppUser.id;
+        try {
+            const res = await fetch(`/api/notifications/user/${activeUserId}`);
+            if (res.ok) {
+                const list = await res.json();
+                if (list.length > 0 && !list[0].isRead) {
+                    showSmsToast(list[0]);
+                }
+            }
+        } catch (e) {}
+    }
+
+    function showSmsToast(sms) {
+        const container = document.getElementById('sms-toast-container');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = 'sms-toast';
+        toast.innerHTML = `
+            <div class="sms-toast-header">
+                <div class="sms-toast-title">
+                    <i class="fa-solid fa-comment-sms fa-lg"></i>
+                    <span>${sms.title || 'Yeni Bildirim'}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="sms-toast-time">Şimdi</span>
+                    <button type="button" class="btn-close btn-close-white" style="font-size: 0.65rem;" onclick="this.closest('.sms-toast').remove()"></button>
+                </div>
+            </div>
+            <div class="small text-warning mb-1">
+                <i class="fa-solid fa-phone me-1"></i> ${sms.phoneNumber || '+90 555 123 45 67'}
+            </div>
+            <div class="sms-toast-body">
+                ${sms.message}
+            </div>
+        `;
+
+        container.appendChild(toast);
+
+        // 9 saniye sonra otomatik kapanma animasyonu
+        setTimeout(() => {
+            toast.classList.add('hide');
+            setTimeout(() => toast.remove(), 300);
+        }, 9000);
+    }
+
+    async function openNotificationsModal() {
+        const modalEl = document.getElementById('notificationsModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+        loadNotificationsList();
+    }
+
+    async function loadNotificationsList() {
+        const container = document.getElementById('notifications-list');
+        if (!currentAppUser) {
+            container.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fa-solid fa-lock fa-3x text-warning mb-3 d-block"></i>
+                    <h6 class="fw-bold">Giriş Yapmanız Gerekiyor</h6>
+                    <p class="text-muted small mb-3">SMS bildirimlerinizi ve mesaj geçmişinizi görüntülemek için lütfen hesabınıza giriş yapın.</p>
+                    <button class="btn btn-primary btn-sm rounded-pill px-4" onclick="openLoginModal()">Giriş Yap</button>
+                </div>`;
+            return;
+
+        }
+
+        container.innerHTML = '<div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-primary"></i> Yükleniyor...</div>';
+
+        try {
+            const res = await fetch(`/api/notifications/user/${currentAppUser.id}`);
+            const list = await res.json();
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        <i class="fa-regular fa-bell-slash fa-2x mb-2 d-block opacity-50"></i>
+                        Henüz gelen bir bildirim bulunmuyor.
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = list.map(item => `
+                <div class="p-3 mb-2 rounded-3 border position-relative ${item.isRead ? 'bg-light text-muted' : 'bg-white shadow-sm border-primary'}">
+                    <div class="d-flex justify-content-between align-items-start mb-1 pe-4">
+                        <span class="fw-bold ${item.isRead ? 'text-dark' : 'text-primary'}">
+                            <i class="fa-solid fa-envelope${item.isRead ? '-open' : ''} me-1"></i> ${item.title}
+                        </span>
+                        <small class="text-muted" style="font-size: 0.72rem;">${item.sentAt ? item.sentAt.replace('T', ' ').substring(0, 16) : 'Az önce'}</small>
+                    </div>
+                    <div class="small mb-1 text-secondary"><i class="fa-solid fa-phone text-success me-1"></i> ${item.phoneNumber || '+90 555 123 45 67'}</div>
+                    <div class="small ${item.isRead ? 'text-muted' : 'text-dark fw-medium'}">${item.message}</div>
+                    <button class="btn btn-link text-danger p-0 position-absolute top-0 end-0 mt-2 me-2" onclick="deleteSingleNotification(${item.id}, event)" title="Bu bildirimi sil">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            checkUnreadNotifications();
+        } catch (e) {
+            container.innerHTML = '<div class="alert alert-danger">Bildirimler yüklenemedi.</div>';
+        }
+    }
+
+    async function markNotificationAsRead(id) {
+        try {
+            await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
+            checkUnreadNotifications();
+        } catch (e) {}
+    }
+
+    async function markAllNotificationsAsRead() {
+        if (!currentAppUser) return;
+        try {
+            await fetch(`/api/notifications/user/${currentAppUser.id}/read-all`, { method: 'POST' });
+            loadNotificationsList();
+            checkUnreadNotifications();
+        } catch (e) {}
+    }
+
+    async function clearAllNotifications() {
+        if (!currentAppUser) return;
+        if (!confirm('Tüm bildirim geçmişini silmek istediğinize emin misiniz?')) return;
+        try {
+            const res = await fetch(`/api/notifications/user/${currentAppUser.id}`, { method: 'DELETE' });
+            if (res.ok) {
+                lastKnownNotifCount = 0;
+                loadNotificationsList();
+                checkUnreadNotifications();
+            }
+        } catch (e) {
+            alert('Bildirimler silinirken hata oluştu.');
+        }
+    }
+
+    async function deleteSingleNotification(id, event) {
+        if (event) event.stopPropagation();
+        try {
+            const res = await fetch(`/api/notifications/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                loadNotificationsList();
+                checkUnreadNotifications();
+            }
+        } catch (e) {}
+    }
+
+    // 8. ORTAK KULLANICI & YÖNETİCİ GİRİŞ SİSTEMİ
+    let currentAppUser = JSON.parse(localStorage.getItem('booking_app_user') || 'null');
+
+    function updateAuthNavUI() {
+        const btnLogin = document.getElementById('btn-auth-login');
+        const userBadge = document.getElementById('user-logged-in-badge');
+        const userNameEl = document.getElementById('nav-user-display-name');
+        const btnAdminPanel = document.getElementById('btn-admin-panel-nav');
+        const adminTitleEl = document.getElementById('nav-manager-title');
+        const btnReservations = document.getElementById('btn-reservations-nav');
+        const customerPortal = document.getElementById('customer-portal-view');
+        const managerPortal = document.getElementById('manager-portal-view');
+
+        if (currentAppUser && currentAppUser.id) {
+            if (btnLogin) btnLogin.style.display = 'none';
+            if (userBadge) userBadge.style.display = 'flex';
+            if (userNameEl) {
+                const icon = (currentAppUser.role === 'HOTEL_MANAGER' || currentAppUser.role === 'ADMIN') 
+                    ? '<i class="fa-solid fa-user-tie text-info me-1"></i>' 
+                    : '<i class="fa-solid fa-circle-user text-success me-1"></i>';
+                userNameEl.innerHTML = `${icon} ${currentAppUser.fullName || currentAppUser.username}`;
+            }
+
+            // Eğer giriş yapan kişi Otel Müdürü veya Admin ise
+            if (currentAppUser.role === 'HOTEL_MANAGER' || currentAppUser.role === 'ADMIN') {
+                if (btnAdminPanel) btnAdminPanel.style.display = 'inline-block';
+                if (btnReservations) btnReservations.style.display = 'none';
+                if (customerPortal) customerPortal.style.display = 'none'; // Müşteri arayüzü (filtreler, yapay zeka, oda arama) tamamen gizlenir
+                if (managerPortal) managerPortal.style.display = 'block'; // Doğrudan sade yönetici paneli görünür
+
+                if (adminTitleEl) {
+                    adminTitleEl.textContent = currentAppUser.hotelName 
+                        ? `${currentAppUser.hotelName} Paneli` 
+                        : 'Yönetim Paneli';
+                }
+
+                const mainTitle = document.getElementById('main-admin-panel-title');
+                const mainSubtitle = document.getElementById('main-admin-panel-subtitle');
+                const mainBadge = document.getElementById('main-admin-badge-name');
+                if (mainTitle) {
+                    mainTitle.innerHTML = `<i class="fa-solid fa-hotel text-info me-2"></i> ${currentAppUser.hotelName ? (currentAppUser.hotelName + ' - Oda & Fiyat Yönetim Paneli') : 'Genel Sistem Yönetim Paneli'}`;
+                }
+                if (mainSubtitle) {
+                    mainSubtitle.textContent = currentAppUser.hotelName 
+                        ? `Sorumlu olduğunuz ${currentAppUser.hotelName} otelinin odalarını ve gelen canlı rezervasyonlarını yönetiyorsunuz.` 
+                        : 'Tüm otellerin odalarını ve anlık rezervasyonlarını yönetiyorsunuz.';
+                }
+                if (mainBadge) {
+                    mainBadge.textContent = currentAppUser.fullName || currentAppUser.username;
+                }
+
+                loadAdminRoomsList();
+                loadAdminReservationsList();
+            } else {
+                // Normal Müşteri Girişi (zeynep)
+                if (btnAdminPanel) btnAdminPanel.style.display = 'none';
+                if (btnReservations) btnReservations.style.display = 'inline-block';
+                if (customerPortal) customerPortal.style.display = 'block';
+                if (managerPortal) managerPortal.style.display = 'none';
+            }
+            checkUnreadNotifications();
+        } else {
+            // Çıkış Yapılmış / Anonim (Misafir) Durumu
+            if (btnLogin) {
+                btnLogin.style.display = 'inline-flex';
+                btnLogin.innerHTML = 'Giriş Yap';
+            }
+            if (userBadge) {
+                userBadge.style.display = 'none';
+            }
+            if (userNameEl) {
+                userNameEl.innerHTML = '';
+            }
+            if (btnAdminPanel) btnAdminPanel.style.display = 'none';
+            if (btnReservations) btnReservations.style.display = 'inline-block';
+            if (customerPortal) customerPortal.style.display = 'block';
+            if (managerPortal) managerPortal.style.display = 'none';
+
+            const badge = document.getElementById('unread-notif-badge');
+            if (badge) badge.style.display = 'none';
+        }
+    }
+
+    function openLoginModal() {
+        const modalEl = document.getElementById('loginModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        document.getElementById('login-error-msg').style.display = 'none';
+        document.getElementById('login-username').value = '';
+        document.getElementById('login-password').value = '';
+        modal.show();
+    }
+
+    async function handleUnifiedLogin() {
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+        const errorEl = document.getElementById('login-error-msg');
+
+        if (!username || !password) {
+            errorEl.textContent = 'Lütfen kullanıcı adı ve şifrenizi girin.';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/v1/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, password: password })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                currentAppUser = data;
+                localStorage.setItem('booking_app_user', JSON.stringify(data));
+                
+                // Modal kapat ve backdrop kalıntılarını temizle
+                const loginModalEl = document.getElementById('loginModal');
+                const modal = bootstrap.Modal.getInstance(loginModalEl) || bootstrap.Modal.getOrCreateInstance(loginModalEl);
+                if (modal) modal.hide();
+
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('padding-right');
+                document.body.style.removeProperty('overflow');
+
+                updateAuthNavUI();
+
+                if (data.role !== 'HOTEL_MANAGER' && data.role !== 'ADMIN') {
+                    appendMessage(`Hoş geldiniz Sayın <strong>${data.fullName}</strong>! Rezervasyon ve fiyat takibi asistanınız hizmetinizde.`, 'ai');
+                }
+            } else {
+                errorEl.textContent = 'Kullanıcı adı veya şifre hatalı!';
+                errorEl.style.display = 'block';
+            }
+        } catch (e) {
+            errorEl.textContent = 'Giriş sırasında sunucu hatası oluştu.';
+            errorEl.style.display = 'block';
+        }
+    }
+
+    function logoutUser() {
+        if (!confirm('Oturumu kapatmak istediğinize emin misiniz?')) return;
+        currentAppUser = null;
+        localStorage.removeItem('booking_app_user');
+        lastKnownNotifCount = 0;
+        isInitialNotifCheck = true;
+
+        // Bildirim badge ve toast'ları temizle
+        const badge = document.getElementById('unread-notif-badge');
+        if (badge) badge.style.display = 'none';
+
+        const toastContainer = document.getElementById('sms-toast-container');
+        if (toastContainer) toastContainer.innerHTML = '';
+
+        updateAuthNavUI();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 9. YÖNETİCİ PANELİ YÖNLENDİRME
+    async function openAdminPanelModal() {
+        if (!currentAppUser) {
+            openLoginModal();
+            return;
+        }
+
+        if (currentAppUser.role !== 'HOTEL_MANAGER' && currentAppUser.role !== 'ADMIN') {
+            alert('Yönetici paneline yalnızca yetkili otel yöneticileri erişebilir.');
+            return;
+        }
+
+        updateAuthNavUI();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function loadAdminRoomsList() {
+        const tbody = document.getElementById('admin-rooms-tbody');
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-primary"></i> Odalar yükleniyor...</td></tr>';
+
+        try {
+            const res = await fetch(`/api/rooms/manager/${currentAppUser.id}`);
+            if (!res.ok) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-danger">Bu otelin odalarına erişim yetkiniz bulunmuyor.</td></tr>';
+                return;
+            }
+
+            const rooms = await res.json();
+
+            if (rooms.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Bu otele ait kayıtlı oda bulunamadı.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = rooms.map(r => {
+                const hotelName = r.hotel ? r.hotel.name : (currentAppUser.hotelName || 'Oteliniz');
+                const city = r.hotel ? r.hotel.city : '';
+                return `
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">${hotelName}</div>
+                            <small class="text-muted"><i class="fa-solid fa-location-dot text-danger me-1"></i> ${city}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">Oda ${r.roomNumber}</span>
+                            <small class="text-muted d-block mt-1">${r.roomType}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-dark fs-6 px-2 py-1">${r.pricePerNight} ₺</span>
+                        </td>
+                        <td>
+                            <div class="input-group input-group-sm" style="max-width: 180px;">
+                                <input type="number" id="admin-input-${r.id}" class="form-control fw-bold text-primary" value="${r.pricePerNight}" step="100">
+                                <span class="input-group-text">₺</span>
+                            </div>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-primary btn-sm fw-bold rounded-pill px-3 shadow-sm" onclick="adminUpdateRoomPrice(${r.id})">
+                                <i class="fa-solid fa-bolt me-1 text-warning"></i> Fiyatı Güncelle
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-danger">Odalar listelenemedi.</td></tr>';
+        }
+    }
+
+    async function loadAdminReservationsList() {
+        const tbody = document.getElementById('admin-reservations-tbody');
+        const badge = document.getElementById('main-admin-res-count-badge') || document.getElementById('admin-res-count-badge');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-primary"></i> Rezervasyonlar yükleniyor...</td></tr>';
+
+        if (!currentAppUser || !currentAppUser.id) return;
+
+        try {
+            const res = await fetch(`/api/reservations/manager/${currentAppUser.id}`);
+            if (!res.ok) {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-danger">Rezervasyonlar alınamadı.</td></tr>';
+                return;
+            }
+
+            const list = await res.json();
+            if (badge) {
+                badge.textContent = list.length;
+                badge.className = list.length > 0 ? 'badge bg-danger rounded-pill ms-1' : 'badge bg-secondary rounded-pill ms-1';
+            }
+
+            if (list.length === 0) {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">Bu otele ait henüz aktif bir rezervasyon bulunmuyor.</td></tr>';
+                return;
+            }
+
+            if (tbody) {
+                tbody.innerHTML = list.map(item => `
+                    <tr>
+                        <td><span class="badge bg-primary fs-7">#${item.id}</span></td>
+                        <td>
+                            <div class="fw-bold text-dark">${item.guestName || 'Misafir'}</div>
+                            <small class="text-muted"><i class="fa-solid fa-phone text-secondary me-1"></i> ${item.guestPhone || '-'}</small>
+                        </td>
+                        <td>
+                            <div class="fw-bold">${item.hotelName}</div>
+                            <small class="badge bg-light text-dark border">Oda ${item.roomNumber} (${item.roomType || ''})</small>
+                        </td>
+                        <td>
+                            <span class="small fw-semibold text-dark"><i class="fa-regular fa-calendar-check text-success me-1"></i> ${item.checkInDate} &rarr; ${item.checkOutDate}</span>
+                        </td>
+                        <td><span class="fw-bold text-success fs-6">${item.totalPrice} ₺</span></td>
+                        <td><span class="badge bg-success">Onaylandı</span></td>
+                        <td class="text-end">
+                            <button class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold" onclick="adminCancelReservation(${item.id})">
+                                <i class="fa-solid fa-trash-can me-1"></i> İptal Et
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        } catch (e) {
+            if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-danger">Rezervasyonlar listelenirken hata oluştu.</td></tr>';
+        }
+    }
+
+    async function adminCancelReservation(id) {
+        if (!confirm(`Otel yöneticisi olarak #${id} numaralı rezervasyonu iptal etmek istediğinize emin misiniz?`)) return;
+        try {
+            const res = await fetch(`/api/reservations/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                alert(`Rezervasyon #${id} başarıyla iptal edildi.`);
+                loadAdminReservationsList();
+                fetchRoomsFromApi();
+                loadReservationsList();
+            } else {
+                alert('Rezervasyon iptal edilirken hata oluştu.');
+            }
+        } catch (e) {
+            alert('Bağlantı hatası.');
+        }
+    }
+
+    async function adminUpdateRoomPrice(roomId) {
+        const input = document.getElementById(`admin-input-${roomId}`);
+        if (!input) return;
+        const newPrice = parseFloat(input.value);
+        if (isNaN(newPrice) || newPrice <= 0) {
+            alert('Lütfen geçerli bir fiyat girin.');
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/rooms/${roomId}/price?newPrice=${newPrice}`, {
+                method: 'PUT'
+            });
+
+            if (res.ok) {
+                // 1. Ekranda görsel Fiyat Güncellendi bildirimi / toast göster
+                showSmsToast({
+                    title: 'Fiyat Başarıyla Güncellendi',
+                    message: `Oda #${roomId} için yeni gecelik fiyat ${newPrice} ₺ olarak kaydedildi. Müşteri takip emirleri kontrol edildi.`,
+                    badgeType: 'PRICE_WATCH'
+                });
+
+                // 2. Bildirimleri ve kontrolü yenile
+                await checkUnreadNotifications();
+
+                // 3. Sayfadaki oda listesini, yönetici tablosunu ve canlı rezervasyonları güncelle
+                fetchRoomsFromApi();
+                loadAdminRoomsList();
+                loadAdminReservationsList();
+
+                // 4. Chatbot'a bilgilendirme mesajı düş
+                const managerTitle = currentAppUser ? (currentAppUser.hotelName || 'Otel Yöneticisi') : 'Otel Yöneticisi';
+                appendMessage(`<strong>${managerTitle} Fiyatı Güncelledi:</strong><br>Oda #${roomId} için yeni gecelik fiyat <strong>${newPrice} ₺</strong> olarak güncellendi.<br>Bu fiyatın altına düşüş bekleyen müşterilerin rezervasyonu anında oluşturuldu ve bildirim iletildi!`, 'ai', ['Bildirimleri Gör', 'Rezervasyonlarım']);
+            } else {
+                alert('Fiyat güncellenirken hata oluştu.');
+            }
+        } catch (e) {
+            alert('Bağlantı hatası.');
+        }
+    }
+
+    function sendQuickMessage(text) {
+        if (text === 'Giriş Yap' || text === 'Giriş' || text === 'Hesaba Giriş Yap') {
+            openLoginModal();
+            return;
+        }
+        if (text === 'Bildirimleri Gör' || text === 'Bildirimler' || text === 'SMS Bildirimlerimi Gör' || text === 'SMS Bildirimleri') {
+            openNotificationsModal();
+            return;
+        } else if (text === 'Yönetici Paneli') {
+            openAdminPanelModal();
+            return;
+        }
+
+        document.getElementById('chat-input').value = text;
+        sendMessage();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateAuthNavUI();
+
+        const resModalEl = document.getElementById('reservationsModal');
+        if (resModalEl) {
+            resModalEl.addEventListener('hidden.bs.modal', function () {
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('padding-right');
+                document.body.style.removeProperty('overflow');
+            });
+        }
+
+        window.addEventListener('online', () => setChatStatus('online'));
+        window.addEventListener('offline', () => setChatStatus('offline'));
+
+        // Başlangıçta ve periyodik olarak bildirimleri ve yönetici rezervasyonlarını kontrol et
+        checkUnreadNotifications();
+        setInterval(() => {
+            checkUnreadNotifications();
+            if (currentAppUser && (currentAppUser.role === 'HOTEL_MANAGER' || currentAppUser.role === 'ADMIN')) {
+                loadAdminReservationsList();
+            }
+        }, 5000);
+    });
+</script>
+</body>
+</html>
